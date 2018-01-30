@@ -16,11 +16,11 @@ TCanvas *GenData(){
   // [1] -> Sigma^2 Variance
   // [0] -> Mu Median
 
-  TF1 *fb = new TF1("f1","(1/sqrt(2*pi*[1]^2))*exp((-(x-[0])^2)/(2*[1]^2))",0,100);
+  TF1 *fb = new TF1("fb","(1/sqrt(2*pi*[1]^2))*exp((-(x-[0])^2)/(2*[1]^2))",0,100);
   fb->SetParameter(0,50.);
   fb->SetParameter(1,50);
   
-  TF1 *fs = new TF1("f2","(1/sqrt(2*pi*[1]^2))*exp((-(x-[0])^2)/(2*[1]^2))",0,100);
+  TF1 *fs = new TF1("fs","(1/sqrt(2*pi*[1]^2))*exp((-(x-[0])^2)/(2*[1]^2))",0,100);
   fs->SetParameter(0,30);
   fs->SetParameter(1,1.5);
 
@@ -44,17 +44,46 @@ TCanvas *GenData(){
   }
 
   TCanvas *cc = new TCanvas("cc","Complete set");
-  cc->Divide(1,3);
+  cc->Divide(2,3);
   cc->cd(1);
   hb->Draw("HIST");
   cc->cd(2);
   hs->Draw("HIST");
   cc->cd(3);
   hbs->Draw("HIST");
-  cc->cd(4);
   //tree->Draw("bx","1","HIST");
 
+  // Correlation
+  // Is it possible to train a NN to return sin(x) values?
+
+  Double_t sinx;
+  Double_t x2;
+  
+  TTree *treesinx = new TTree("sin","Sin Function");
+  TBranch *bsinx = treesinx->Branch("sinx",&sinx);
+  TBranch *bx2 = treesinx->Branch("x2",&x2);
+
+  TH1F *hsin = new TH1F("hsin","Sin",10,-1.,1. );
+  TH1F *hx = new TH1F("hx","x",100,-2*TMath::Pi(), 2*TMath::Pi());
+
+  TRandom3 *rnd = new TRandom3();
+  
+  for (Int_t i = 0; i < n; i++){
+    x2 = rnd->Uniform(-2*TMath::Pi(),2*TMath::Pi());
+    sinx = TMath::Sin(x2);
+    hsin->Fill(sinx);
+    hx->Fill(x2);
+    bx->Fill();
+    bsinx->Fill();
+  }
+
+  cc->cd(4); 
+  hx->Draw("HIST");
+  cc->cd(5);
+  hsin->Draw("HIST");
+
   TFile *fOut = new TFile("DataSet.root","RECREATE");
+  treesinx->Write();
   treebckg->Write();
   treesig->Write();
   fOut->Close();
