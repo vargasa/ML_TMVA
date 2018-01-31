@@ -33,9 +33,8 @@ TCanvas *GenData(){
     x_sig = fs->GetRandom();
     x = x_bckg + x_sig;
     
-    bckg->Fill();
-    sig->Fill();
-    bx->Fill();
+    treebckg->Fill();
+    treesig->Fill();
 
     hb->Fill(x_bckg);
     hs->Fill(x_sig);
@@ -73,8 +72,7 @@ TCanvas *GenData(){
     sinx = TMath::Sin(x2);
     hsin->Fill(sinx);
     hx->Fill(x2);
-    bx->Fill();
-    bsinx->Fill();
+    treesinx->Fill();
   }
 
   cc->cd(4); 
